@@ -15,6 +15,7 @@ import (
 
 var (
 	cfg = struct {
+		Gzip           bool   `flag:"gzip" default:"true" description:"Enable gzip compression"`
 		Listen         string `flag:"listen" default:":3000" description:"Port/IP to listen on"`
 		LogLevel       string `flag:"log-level" default:"info" description:"Log level (debug, info, warn, error, fatal)"`
 		RootDir        string `flag:"root-dir,r" default:"" vardefault:"rootDir" description:"Where to store files / get files from"`
@@ -59,7 +60,9 @@ func main() {
 	router.PathPrefix("/").Methods(http.MethodPost, http.MethodPut).HandlerFunc(handlePut)
 
 	var hdl http.Handler = router
-	hdl = httpHelper.GzipHandler(hdl)
+	if cfg.Gzip {
+		hdl = httpHelper.GzipHandler(hdl)
+	}
 	hdl = httpHelper.NewHTTPLogHandlerWithLogger(hdl, logrus.StandardLogger())
 
 	server := &http.Server{
