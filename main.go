@@ -15,6 +15,7 @@ import (
 
 var (
 	cfg = struct {
+		CORS           bool   `flag:"cors" default:"false" description:"Add allow-all CORS headers for JS access"`
 		Gzip           bool   `flag:"gzip" default:"true" description:"Enable gzip compression"`
 		Listen         string `flag:"listen" default:":3000" description:"Port/IP to listen on"`
 		LogLevel       string `flag:"log-level" default:"info" description:"Log level (debug, info, warn, error, fatal)"`
@@ -58,6 +59,24 @@ func main() {
 	router.PathPrefix("/").Methods(http.MethodDelete).HandlerFunc(handleDelete)
 	router.PathPrefix("/").Methods(http.MethodGet).HandlerFunc(handleGet)
 	router.PathPrefix("/").Methods(http.MethodPost, http.MethodPut).HandlerFunc(handlePut)
+
+	if cfg.CORS {
+		router.Use(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("origin"))
+				w.Header().Set("Access-Control-Allow-Methods", "GET, PUT, DELETE, OPTIONS")
+				w.Header().Set("Access-Control-Allow-Headers", "*")
+				w.Header().Set("Access-Control-Allow-Credentials", "true")
+				w.Header().Set("Access-Control-Max-Age", "86400")
+
+				next.ServeHTTP(w, r)
+			})
+		})
+
+		router.Methods(http.MethodOptions).HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusNoContent)
+		})
+	}
 
 	var hdl http.Handler = router
 	if cfg.Gzip {
