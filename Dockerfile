@@ -1,4 +1,4 @@
-FROM golang:alpine as builder
+FROM golang:1.24-alpine as builder
 
 COPY . /src/hold-this
 WORKDIR /src/hold-this
@@ -12,9 +12,9 @@ RUN set -ex \
       -trimpath
 
 
-FROM alpine:latest
+FROM alpine:3.22
 
-LABEL maintainer "Knut Ahlers <knut@ahlers.me>"
+LABEL maintainer="Knut Ahlers <knut@ahlers.me>"
 
 RUN set -ex \
  && apk --no-cache add \
