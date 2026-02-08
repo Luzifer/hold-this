@@ -3,7 +3,7 @@ module git.luzifer.io/luzifer/hold-this
 go 1.24
 
 require (
-	github.com/Luzifer/go_helpers/v2 v2.25.0
+	github.com/Luzifer/go_helpers/v2 v2.25.2
 	github.com/Luzifer/rconfig/v2 v2.6.1
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/gorilla/mux v1.8.1
