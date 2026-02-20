@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	httpHelper "github.com/Luzifer/go_helpers/v2/http"
+	httpHelper "github.com/Luzifer/go_helpers/http"
 	"github.com/Luzifer/rconfig/v2"
 )
 
