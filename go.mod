@@ -4,7 +4,7 @@ go 1.25.7
 
 require (
 	github.com/Luzifer/go_helpers/http v0.12.4
-	github.com/Luzifer/rconfig/v2 v2.6.1
+	github.com/Luzifer/rconfig/v2 v2.6.2
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/gorilla/mux v1.8.1
 	github.com/sirupsen/logrus v1.9.4
