@@ -1,16 +1,16 @@
+// Hold-This temporary HTTP Server
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
-
-	httpHelper "github.com/Luzifer/go_helpers/http"
+	httphelper "github.com/Luzifer/go_helpers/http"
 	"github.com/Luzifer/rconfig/v2"
+	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -32,12 +32,12 @@ func initApp() error {
 	})
 	rconfig.AutoEnv(true)
 	if err := rconfig.ParseAndValidate(&cfg); err != nil {
-		return errors.Wrap(err, "parsing cli options")
+		return fmt.Errorf("parsing cli options: %w", err)
 	}
 
 	l, err := logrus.ParseLevel(cfg.LogLevel)
 	if err != nil {
-		return errors.Wrap(err, "parsing log-level")
+		return fmt.Errorf("parsing log-level: %w", err)
 	}
 	logrus.SetLevel(l)
 
@@ -63,7 +63,7 @@ func main() {
 	if cfg.CORS {
 		router.Use(func(next http.Handler) http.Handler {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("origin"))
+				w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
 				w.Header().Set("Access-Control-Allow-Methods", "GET, PUT, DELETE, OPTIONS")
 				w.Header().Set("Access-Control-Allow-Headers", "*")
 				w.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -80,9 +80,9 @@ func main() {
 
 	var hdl http.Handler = router
 	if cfg.Gzip {
-		hdl = httpHelper.GzipHandler(hdl)
+		hdl = httphelper.GzipHandler(hdl)
 	}
-	hdl = httpHelper.NewHTTPLogHandlerWithLogger(hdl, logrus.StandardLogger())
+	hdl = httphelper.NewHTTPLogHandlerWithLogger(hdl, logrus.StandardLogger())
 
 	server := &http.Server{
 		Addr:              cfg.Listen,

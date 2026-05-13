@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -11,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -20,7 +20,7 @@ const dirCreateMode = 0o750
 func deriveFile(r *http.Request) (string, error) {
 	absRoot, err := filepath.Abs(cfg.RootDir)
 	if err != nil {
-		return "", errors.Wrap(err, "getting absolute root")
+		return "", fmt.Errorf("getting absolute root: %w", err)
 	}
 
 	file := filepath.Clean(path.Join(absRoot, strings.TrimLeft(r.URL.Path, "/")))
@@ -109,12 +109,16 @@ func handlePut(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	out, err := os.Create(f)
+	out, err := os.Create(f) //#nosec:G304 // intended to write given file
 	if err != nil {
 		genericHTTPError(w, reqID, err, "creating file")
 		return
 	}
-	defer out.Close()
+	defer func() {
+		if err := out.Close(); err != nil {
+			logrus.WithError(err).Error("closing file in PUT request")
+		}
+	}()
 
 	if _, err = io.Copy(out, r.Body); err != nil {
 		genericHTTPError(w, reqID, err, "copying file contents")
